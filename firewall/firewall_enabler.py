@@ -4,9 +4,9 @@ import subprocess
 from collections import defaultdict
 
 
-def collect_ips():
+def collect_ips_ports():
     """
-    Collect IP addresses to allow in inbound traffic on firewall for this node
+    Collect IP addresses and respective ports on host node to configure inbound traffic rules on firewall
     
     Return:
         dict_ip_port(dict): each IP's is mapped to a list of selected ports on this node it is allowed to access 
@@ -51,7 +51,7 @@ def run_cmd(cmd):
 def enable_firewall(map_ip_port):
 
     """
-    Peform the shell script neccessary to enable a firewall on node.
+    Peform the shell commands neccessary to enable a firewall on host node.
 
     Args:
         map_ip_port(dict): each IP's is mapped to a list of selected ports on this node it is allowed to access
@@ -80,7 +80,7 @@ def enable_firewall(map_ip_port):
 
 def disable_firewall():
     """"
-    Peform the shell script neccesary to disable firewall on node.
+    Peform the shell commands neccesary to disable firewall on host node.
     
     """
     # Call run_cmd function and run diable commmand
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     action = input("Do you want to enable or disable the firewall? (enable/disable): ").strip().lower()
 
     if action == "enable":
-        map_ip_ports = collect_ips()
+        map_ip_ports = collect_ips_ports()
         enable_firewall(map_ip_ports)
     elif action == "disable":
         disable_firewall()
