@@ -1,4 +1,7 @@
 """
+
+DISCLAIMER: DO NOT RUN THIS IN A NETWORK, WHERE U DO NOT HAVE PERMISSION :)
+
 import neccessary modules and functions
 
 sys: Access to python interpeter variables and functions (command line args, etc.)
@@ -37,12 +40,13 @@ def ping_sweep(network, netmask):
         # Increment scanned hosts IP and print current count on console
         scanned_hosts += 1
         print(f"Scanning: {scanned_hosts}/{total_hosts}", end="\r")
+        # Call sr1 function which sends 1 ping and 
         # send 1 ICMP echo request (a ping) to current host IP 
         # receive 1 response
         response = sr1(IP(dst=str(host))/ICMP(), timeout=1, verbose=0)
 
-        # if a response is returned, append the live host IP to live_host and print its online status console
-        if response:
+        # if a response is returned, append the live host IP to live_host and print its online status via console
+        if response and str(host) not in live_hosts:
             live_hosts.append(str(host))
             print(f"Host {host} is online.")
 
