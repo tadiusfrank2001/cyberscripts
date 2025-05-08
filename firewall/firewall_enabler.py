@@ -69,11 +69,17 @@ def enable_firewall(list_IP):
     run_cmd("sudo ufw --force enable")
 
 def disable_firewall():
+    """"
+    Peform the shell script neccesary to disable firewall on node.
+    
+    """
+    # Call run_cmd function and run diable commmand
     run_cmd("ufw disable")
     print("\n UFW firewall has been disabled.")
 
 if __name__ == "__main__":
     
+    # Ask user disable or enable firewall
     action = input("Do you want to enable or disable the firewall? (enable/disable): ").strip().lower()
 
     if action == "enable":

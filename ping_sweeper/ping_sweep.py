@@ -40,7 +40,7 @@ def ping_sweep(network, netmask):
         # Increment scanned hosts IP and print current count on console
         scanned_hosts += 1
         print(f"Scanning: {scanned_hosts}/{total_hosts}", end="\r")
-        # Call sr1 function which sends 1 ping and 
+        # Call sr1 function which sends a ping 
         # send 1 ICMP echo request (a ping) to current host IP 
         # receive 1 response
         response = sr1(IP(dst=str(host))/ICMP(), timeout=1, verbose=0)
