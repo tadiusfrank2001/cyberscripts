@@ -1,6 +1,7 @@
 
 # subprocess: Allows us to run external shell commands and interact with system processes
 import subprocess
+from collections import defaultdict
 
 # Static port config
 PORT = 5000  # Example: Node communication port
@@ -10,13 +11,23 @@ def collect_ips():
     Collect IP addresses to allow in inbound traffic on firewall for this node
     
     Return:
-        ip_list(list): List of all IP's to be added to inbound traffic
+        dict_ip_port(dict): each IP's is mapped to a list of selected ports on this node it is allowed to access 
     """
     print("Enter IPs you want to allow access to this node (comma-separated):")
     # remove all leading and trailing white spaces, new lines, tabs with .strip()
     ip_input = input("IPs: ").strip()
     ip_list = [ip.strip() for ip in ip_input.split(",") if ip.strip()]
-    return ip_list 
+
+    # Initalize dictionary {ip(str): ports(list)}
+    dict_ip_ports = defaultdict()
+
+    # map each IP to a list of specified ports on the host node where inbound traffic is allowed from that IP
+    for ip in ip_list:
+        port_input = input(f"Enter ports you want to allow this node {ip} to have access to (comma-separated):").strip()
+        port_list = [port.strip() for port in port_input.split(",") if port.strip()]
+        dict_ip_ports[ip] = port_list
+        
+    return dict_ip_ports
 
 def run_cmd(cmd):
     """
@@ -39,13 +50,13 @@ def run_cmd(cmd):
     return result
 
 
-def enable_firewall(list_IP):
+def enable_firewall(map_ip_port):
 
     """
     Peform the shell script neccessary to enable a firewall on node.
 
     Args:
-        list_IP(list): specific IP's to add in inbound traffic rules on default port
+        map_ip_port(dict): each IP's is mapped to a list of selected ports on this node it is allowed to access
 
     """
 
@@ -61,9 +72,10 @@ def enable_firewall(list_IP):
     run_cmd("sudo ufw allow ssh")
     run_cmd("sudo ufw allow from 127.0.0.1")
 
-    # Allow specific IPs to access the port
-    for ip in list_IP:
-        run_cmd(f"sudo ufw allow from {ip} to any port {PORT}")
+    # Allow specific IPs access to node via specified ports
+    for ip, ports in map_ip_ports.items():
+        for port in ports:
+            run_cmd(f"sudo ufw allow from {ip} to any port {port}")
 
     # Enable the firewall
     run_cmd("sudo ufw --force enable")
@@ -83,8 +95,8 @@ if __name__ == "__main__":
     action = input("Do you want to enable or disable the firewall? (enable/disable): ").strip().lower()
 
     if action == "enable":
-        list_IP = collect_ips()
-        enable_firewall(list_IP)
+        map_ip_ports = collect_ips()
+        enable_firewall(map_ip_ports)
     elif action == "disable":
         disable_firewall()
     else:
