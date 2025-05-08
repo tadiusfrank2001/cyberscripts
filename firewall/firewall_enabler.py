@@ -3,8 +3,6 @@
 import subprocess
 from collections import defaultdict
 
-# Static port config
-PORT = 5000  # Example: Node communication port
 
 def collect_ips():
     """
