@@ -93,3 +93,24 @@ def multithread_scan(ip, ports, threads=10):
             results.extend(chunk_result)
 
     return results
+
+
+
+def output_to_csv(output_file, host_info):
+    """Append one scan record to a CSV file.
+
+    Args:
+        output_file (str): Path to the CSV output file.
+        host_info (dict): Dictionary containing scan result fields.
+    """
+    fieldnames = ["ip", "os", "port", "name", "product", "version"]
+    file_exists = os.path.isfile(output_file)
+
+    with open(output_file, "a") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+        # Write header only once for new files
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow(host_info)
