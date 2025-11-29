@@ -91,3 +91,36 @@ def ping_sweep(network, netmask):
                     live_hosts.append(result)
 
     return live_hosts
+
+def port_scan(ip, ports):
+    """Perform a multi-threaded port scan on a target host.
+
+    Args:
+        ip (str): Target host IP address.
+        ports (iterable[int]): Iterable of port numbers to scan.
+
+    Returns:
+        list[int]: List of open ports.
+    """
+    open_ports = []
+
+    num_threads = os.cpu_count()
+    total_ports = len(ports)
+
+    # Thread pool for scanning ports
+    with ThreadPoolExecutor(max_workers=num_threads) as executor:
+        futures = {executor.submit(scan_port, (ip, port)): port for port in ports}
+
+        # Handle results as they complete
+        for i, future in enumerate(as_completed(futures), start=1):
+            port = futures[future]
+            result = future.result()
+
+            with print_lock:
+                print(f"Scanning {ip}: {i}/{total_ports}", end="\r")
+
+                if result is not None:
+                    print(f"\nPort {port} is open on host {ip}")
+                    open_ports.append(result)
+
+    return open_ports
