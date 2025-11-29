@@ -51,3 +51,45 @@ def scan_port_task(ip, ports):
 
     return host_infos
 
+
+
+def multithread_scan(ip, ports, threads=10):
+    """Perform a multithreaded scan over port groups.
+
+    Nmap does not like being run in *parallel on the same host*, so instead
+    we break the scan into chunks of ports and submit the jobs to a thread pool.
+
+    Args:
+        ip (str): Target host to scan.
+        ports (str): Port range string (e.g., "1-1024").
+        threads (int): Number of scanning threads.
+
+    Returns:
+        list[dict]: All discovered port/service information.
+    """
+    # Convert "1-1024" into a Python list of integers
+    if "-" in ports:
+        start, end = ports.split("-")
+        port_list = list(range(int(start), int(end) + 1))
+    else:
+        port_list = [int(p) for p in ports.split(",")]
+
+    # Break the list into chunks (Nmap performs best with ~100 ports per scan)
+    chunk_size = 100
+    port_chunks = [
+        ",".join(str(p) for p in port_list[i:i + chunk_size])
+        for i in range(0, len(port_list), chunk_size)
+    ]
+
+    results = []
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        futures = {
+            executor.submit(scan_port_task, ip, chunk): chunk
+            for chunk in port_chunks
+        }
+
+        for future in as_completed(futures):
+            chunk_result = future.result()
+            results.extend(chunk_result)
+
+    return results
