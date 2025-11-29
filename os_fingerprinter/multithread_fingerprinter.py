@@ -114,3 +114,40 @@ def output_to_csv(output_file, host_info):
             writer.writeheader()
 
         writer.writerow(host_info)
+
+
+def main():
+    """Main program loop.
+
+    Requests input from the user, runs a multithreaded Nmap scan,
+    writes results to CSV, and prints them to the console.
+    """
+    ip = input("Enter target IP address: ").strip()
+    ports = input("Enter ports to scan (e.g., 1-1024 or 80,443): ").strip()
+    output_file = input("Enter output file name (default: scan_results.csv): ").strip()
+
+    if output_file == "":
+        output_file = "scan_results.csv"
+
+    print(f"\nStarting multithreaded scan of {ip} on ports {ports} ...\n")
+
+    # Run the multithreaded scan
+    host_infos = multithread_scan(ip, ports, threads=10)
+
+    # Write discovered ports to CSV
+    for host_info in host_infos:
+        output_to_csv(output_file, host_info)
+
+    # Print results nicely
+    print("\n--- Scan Results ---\n")
+    for host_info in host_infos:
+        print(f"IP: {host_info['ip']}")
+        print(f"OS: {host_info['os']}")
+        print(f"Port: {host_info['port']}")
+        print(f"Name: {host_info['name']}")
+        print(f"Product: {host_info['product']}")
+        print(f"Version: {host_info['version']}\n")
+
+
+if __name__ == "__main__":
+    main()
