@@ -184,3 +184,14 @@ def get_live_hosts_and_ports(network, netmask):
 
     return host_port_mapping
 
+
+if __name__ == "__main__":
+    # Ask user for network and netmask interactively
+    network = input("Enter network address (e.g., 192.168.1.0): ").strip()
+    netmask = input("Enter netmask (e.g., 24): ").strip()
+
+    host_port_mapping = get_live_hosts_and_ports(network, netmask)
+
+    # Print results
+    for host, open_ports in host_port_mapping.items():
+        print(f"\nHost {host} has the following open ports: {open_ports}")
