@@ -124,3 +124,29 @@ def port_scan(ip, ports):
                     open_ports.append(result)
 
     return open_ports
+
+
+def get_live_hosts_and_ports(network, netmask):
+    """Perform a ping sweep and port scan on all live hosts.
+
+    Args:
+        network (str): The network address.
+        netmask (str): The subnet mask.
+
+    Returns:
+        dict[str, list[int]]: Mapping of host IP → list of open ports.
+    """
+    # First, detect which hosts are online
+    live_hosts = ping_sweep(network, netmask)
+
+    host_port_mapping = {}
+
+    # Port range to scan
+    ports = range(1, 1024)
+
+    # Scan each live host
+    for host in live_hosts:
+        open_ports = port_scan(host, ports)
+        host_port_mapping[host] = open_ports
+
+    return host_port_mapping
