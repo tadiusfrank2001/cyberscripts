@@ -54,3 +54,40 @@ def scan_port(args):
 
     return None
 
+def ping_sweep(network, netmask):
+    """Perform a ping sweep on the given network to find live hosts.
+
+    Args:
+        network (str): The network address (e.g., "192.168.1.0").
+        netmask (str): The subnet mask (e.g., "24").
+
+    Returns:
+        list[str]: List of hosts that responded to a ping.
+    """
+    live_hosts = []
+
+    # Number of worker threads based on CPU count
+    num_threads = os.cpu_count()
+
+    # Generate all possible hosts in the network
+    hosts = list(ip_network(network + '/' + netmask).hosts())
+    total_hosts = len(hosts)
+
+    # Thread pool for parallel pinging
+    with ThreadPoolExecutor(max_workers=num_threads) as executor:
+        futures = {executor.submit(ping, host): host for host in hosts}
+
+        # Process completed ping results
+        for i, future in enumerate(as_completed(futures), start=1):
+            host = futures[future]
+            result = future.result()
+
+            # Ensure print statements do not overlap
+            with print_lock:
+                print(f"Scanning: {i}/{total_hosts}", end="\r")
+
+                if result is not None:
+                    print(f"\nHost {host} is online.")
+                    live_hosts.append(result)
+
+    return live_hosts
