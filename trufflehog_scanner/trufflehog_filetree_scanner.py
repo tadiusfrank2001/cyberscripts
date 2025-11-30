@@ -33,3 +33,32 @@ def save_results_to_json(output_file, secrets):
     """
     with open(output_file, "w") as f:
         json.dump(secrets, f, indent=4)
+
+
+def main():
+    """Main execution flow. Prompts the user for a path and scans it."""
+    target = input("Enter directory path or Git repo URL to scan: ").strip()
+
+    if not target:
+        print("[-] Invalid input.")
+        return
+
+    print(f"[+] Scanning: {target}")
+    results = scan_target(target)
+
+    if not results:
+        print("[+] No secrets found.")
+    else:
+        print(f"[+] Found {len(results)} potential secrets.\n")
+
+        for secret in results:
+            print(json.dumps(secret, indent=2))
+
+    # Save to file
+    output_file = "trufflehog_results.json"
+    save_results_to_json(output_file, results)
+    print(f"\n[+] Results saved to {output_file}")
+
+
+if __name__ == "__main__":
+    main()
