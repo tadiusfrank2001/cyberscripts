@@ -24,3 +24,12 @@ def scan_target(target_path):
 
     return secret_list
 
+def save_results_to_json(output_file, secrets):
+    """Save scan results to a JSON file.
+
+    Args:
+        output_file (str): Output JSON file path.
+        secrets (list[dict]): List of secrets detected by TruffleHog.
+    """
+    with open(output_file, "w") as f:
+        json.dump(secrets, f, indent=4)
